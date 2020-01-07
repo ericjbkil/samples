@@ -1,0 +1,77 @@
+ > #3.1 Loading Transcript Data
+> samplefile <- system.file("extdata", "hg19_knownGene_sample.sqlite",package="GenomicFeatures")
+> txdb <- loadDb(samplefile)
+> txdb
+TxDb object:
+# Db type: TxDb
+# Supporting package: GenomicFeatures
+# Data source: UCSC
+# Genome: hg19
+# Organism: Homo sapiens
+# UCSC Table: knownGene
+# Resource URL: http://genome.ucsc.edu/
+# Type of Gene ID: Entrez Gene ID
+# Full dataset: no
+# miRBase build ID: NA
+# transcript_nrow: 178
+# exon_nrow: 620
+# cds_nrow: 523
+# Db created by: GenomicFeatures package from Bioconductor
+# Creation time: 2014-10-08 10:31:15 -0700 (Wed, 08 Oct 2014)
+# GenomicFeatures version at creation time: 1.17.21
+# RSQLite version at creation time: 0.11.4
+# DBSCHEMAVERSION: 1.0
+> library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+> txdb <- TxDb.Hsapiens.UCSC.hg19.knownGene #shorthand (for convenience) > txdb
+TxDb object:
+# Db type: TxDb
+# Supporting package: GenomicFeatures
+# Data source: UCSC
+# Genome: hg19
+# Organism: Homo sapiens
+# Taxonomy ID: 9606
+# UCSC Table: knownGene
+# Resource URL: http://genome.ucsc.edu/
+# Type of Gene ID: Entrez Gene ID
+# Full dataset: yes
+# miRBase build ID: GRCh37
+# transcript_nrow: 82960
+# exon_nrow: 289969
+# cds_nrow: 237533
+# Db created by: GenomicFeatures package from Bioconductor
+# Creation time: 2015-10-07 18:11:28 +0000 (Wed, 07 Oct 2015)
+# GenomicFeatures version at creation time: 1.21.30
+# RSQLite version at creation time: 1.0.0
+# DBSCHEMAVERSION: 1.1
+> #3.2 Pre-filtering data based on Chromosomes
+> head(seqlevels(txdb)) #seqlevels = to determine which chromosomes are currently active [1] "chr1" "chr2" "chr3" "chr4" "chr5" "chr6"
+> seqlevels(txdb) <- "chr1" #to only set Chromosome 1 to be active
+> seqlevels(txdb) <- seqlevels0(txdb) #to reset back to the original seqlevels
+> #exercise 1: Use seqlevels to set only chromsome 15 to be active.
+
+ > seqlevels(txdb) <- "chr15" > seqlevels(txdb)
+[1] “chr15"
+> #3.3 Retrieving data using the select method
+> #to find the UCSC transcript names that match with a set of gene IDs > keys <- c("100033416", "100033417", "100033420")
+> columns(txdb)
+[1] "CDSCHROM" "CDSEND" "CDSID" "CDSNAME" "CDSSTART" "CDSSTRAND" "EXONCHROM" "EXONEND"
+[9] "EXONID" "EXONNAME" "EXONRANK" "EXONSTART" "EXONSTRAND" "GENEID" "TXCHROM" "TXEND"
+[17] "TXID" "TXNAME" "TXSTART" "TXSTRAND" "TXTYPE"
+> keytypes(txdb)
+[1] "CDSID" "CDSNAME" "EXONID" "EXONNAME" "GENEID" "TXID" "TXNAME" > select(txdb, keys = keys, columns = "TXNAME", keytype = "GENEID")
+'select()' returned 1:1 mapping between keys and columns
+GENEID TXNAME
+1 100033416 uc001yxl.4
+2 100033417 uc001yxo.3
+3 100033420 uc001yxr.3
+> #exercise 2:For the genes in the example above, find the chromosome and strand information that will go with each of the transcript names.
+> columns(txdb)
+[1] "CDSCHROM" "CDSEND" "CDSID" "CDSNAME" "CDSSTART" "CDSSTRAND" "EXONCHROM" "EXONEND"
+[9] "EXONID" "EXONNAME" "EXONRANK" "EXONSTART" "EXONSTRAND" "GENEID" "TXCHROM" "TXEND"
+[17] "TXID" "TXNAME" "TXSTART" "TXSTRAND" "TXTYPE"
+> cols <- c("TXNAME", "TXSTRAND", "TXCHROM")
+> select(txdb, keys = keys, columns = cols, keytype = "GENEID") 'select()' returned 1:1 mapping between keys and columns
+GENEID TXNAME TXCHROM TXSTRAND
+1 100033416 uc001yxl.4 2 100033417 uc001yxo.3 3 100033420 uc001yxr.3
+chr15 + chr15 +
+chr15 +
